@@ -112,16 +112,16 @@ class AudioSelector:
             item.show()
             self.menu.append(item)
             
-            # Disable device if all inputs are seted to this device
-            if all(in_sink == dev_id for in_sink in [inp[3] for inp in self.inputs]) and self.inputs:
-                item.set_sensitive(False)
-                item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
-            
-            # Enclose default device between delimeters
-            if dev_id == self.default_device:
-                item.set_label(dev_name)
-                # If no sound inputs, set the connected icon to the default device
-                if not self.inputs:
+            if self.inputs:
+                # Disable device if all inputs are seted to this device and it's the default_device
+                has_all_inputs = all(in_sink == dev_id for in_sink in [inp[3] for inp in self.inputs])
+                if has_all_inputs and dev_id == self.default_device:
+                    item.set_sensitive(False)
+                    item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
+            else:
+                # If there is no inputs, set the connected icon to the default device
+                if dev_id == self.default_device:
+                    item.set_sensitive(False)
                     item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
                 
                 
