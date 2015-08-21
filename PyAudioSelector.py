@@ -14,6 +14,7 @@ except:
 
 
 class AudioSelector:
+    
     def __init__(self, parser):
         
         self.parser = parser
@@ -30,9 +31,7 @@ class AudioSelector:
         self.get_audio_status()
         self.create_menu()
         
-
-
-    
+        
     def get_audio_status(self):
         self.default_device, self.avaiable_devices = getPulseAudioDevices()
         self.inputs = getPulseAudioInputs()
@@ -53,7 +52,7 @@ class AudioSelector:
         if self.inputs:
             
             # Applications label
-            item = Gtk.MenuItem("Aplicaciones")
+            item = Gtk.MenuItem("Applications")
             item.set_sensitive(False)
             item.show()
             self.menu.append(item)
@@ -68,7 +67,7 @@ class AudioSelector:
                 item.set_submenu(submenu)
                 
                 # Applications label
-                sub_item = Gtk.MenuItem("Reproducir en:")
+                sub_item = Gtk.MenuItem("Play on...")
                 sub_item.set_sensitive(False)
                 sub_item.show()
                 submenu.append(sub_item)
@@ -96,7 +95,7 @@ class AudioSelector:
         
         # Devices label
         if self.avaiable_devices:
-            item = Gtk.MenuItem("Dispositivos")
+            item = Gtk.MenuItem("Devices")
             item.set_sensitive(False)
             item.show()
             self.menu.append(item)
@@ -116,7 +115,7 @@ class AudioSelector:
             
             # Enclose default device between delimeters
             if dev_id == self.default_device:
-                item.set_label(dev_name+' (*)')
+                item.set_label(dev_name)
                 # If no sound inputs, set the connected icon to the default device
                 if not self.inputs:
                     item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
@@ -126,7 +125,7 @@ class AudioSelector:
         item = Gtk.SeparatorMenuItem()
         item.show()
         self.menu.append(item)
-
+        
         # Open the sound settings
         item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_PREFERENCES, None)
         item.connect("activate", lambda w: self.handler_open_settings())
@@ -156,7 +155,7 @@ class AudioSelector:
     def handler_switch_in(self, in_id, dev_id):
         # Move sink input to the selected device
         cmd = 'pactl move-sink-input ' + in_id + ' ' + dev_id
-        print 'PulseAudio: : ' + cmd
+        print 'PulseAudio:   ' + cmd
         Popen(cmd, shell=True, stdout=PIPE).communicate()
         self.handler_refresh_menu()
 
@@ -165,16 +164,15 @@ class AudioSelector:
         # Move sink inputs to the selected device
         for input_id,_,_,_ in getPulseAudioInputs():
             cmd = 'pactl move-sink-input ' + input_id + ' ' + dev_id
-            print 'PulseAudio: : ' + cmd
+            print 'PulseAudio:   ' + cmd
             Popen(cmd, shell=True, stdout=PIPE).communicate()
         
         # Set selected device as default
         cmd = 'pacmd set-default-sink ' + dev_id
-        print 'PulseAudio: : ' + cmd
+        print 'PulseAudio:   ' + cmd
         Popen(cmd, shell=True, stdout=PIPE).communicate()
         
         self.handler_refresh_menu()
-        
         
     def handler_refresh_menu(self):
         self.get_audio_status()
@@ -196,14 +194,6 @@ def getPulseAudioDevices():
     
     raw_devices = findall(r"(\*?) index: (\d+)", str(raw))
     names = findall(r"device.description = \"(\S.+)\"", str(raw))
-    
-#    print names
-#    
-#    for name in names:
-#        name = name.decode('iso8859-1')
-#        name = name.encode("ascii","ignore")
-#    
-#    print names
     
     devices = [tup[1] for tup in raw_devices]
     default = [x[1] for x in raw_devices if x[0] is '*'][0]
