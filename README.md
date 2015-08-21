@@ -1,2 +1,2 @@
 # PyAudioSelector
-Python written GTK-AppIndicator for switch easily between audio outputs
+Python written GTK3 AppIndicator for switch easily between audio outputs

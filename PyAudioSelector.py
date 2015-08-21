@@ -1,3 +1,4 @@
+import os
 from re import findall
 from ConfigParser import SafeConfigParser
 from subprocess import Popen, PIPE
@@ -26,7 +27,7 @@ class AudioSelector:
         self.default_device, self.avaiable_devices = getPulseAudioStatus()
         self.inputs = getPulseAudioInputs()
         
-        #########################  <MENU>  #########################
+        #########################  <menu>  #########################
         self.menu = Gtk.Menu()
         
         # Add a menu entry for each audio input
@@ -67,13 +68,17 @@ class AudioSelector:
             self.menu.append(item)
             
             # Disable device if all inputs are seted to this device
-            if all(in_sink == dev_id for in_sink in [inp[3] for inp in self.inputs]):
+            if all(in_sink == dev_id for in_sink in [inp[3] for inp in self.inputs]) and self.inputs:
                 item.set_sensitive(False)
                 item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
             
-            # Bracket enclosing default device
+            # Enclose default device between delimeters and set the connected icon
             if dev_id == self.default_device:
                 item.set_label(self.open_char + dev_name + self.close_char)
+                # If no sound inputs, set the connected icon to the default device
+                if not self.inputs:
+                    item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
+                
                 
         # Separator
         item = Gtk.SeparatorMenuItem()
@@ -95,7 +100,7 @@ class AudioSelector:
 		# Show the indicator
         self.menu.show()
         self.ind.set_menu(self.menu)
-        ########################  </MENU>  #########################
+        ########################  </menu>  #########################
         
         # Refresh periodically to catch new inputs/devices
         GLib.timeout_add_seconds(self.refresh_interval, self.refresh)
@@ -164,8 +169,10 @@ def getPulseAudioInputs():
 
 if __name__ == "__main__":
     
+    config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
+    
     parser = SafeConfigParser()
-    parser.read('config.ini')
+    parser.read(config_file)
 
     ind = AudioSelector(parser)
     ind.main()
