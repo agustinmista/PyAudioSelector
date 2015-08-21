@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import os
+
 from re import findall
 from ConfigParser import SafeConfigParser
 from subprocess import Popen, PIPE
@@ -90,7 +93,7 @@ class AudioSelector:
             
             # Enclose default device between delimeters and set the connected icon
             if dev_id == self.default_device:
-                item.set_label(dev_name + u' \u2605')
+                item.set_label(dev_name+' (*)')
                 # If no sound inputs, set the connected icon to the default device
                 if not self.inputs:
                     item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
@@ -169,7 +172,15 @@ def getPulseAudioDevices():
     raw, _ = Popen('pacmd list-sinks', shell=True, stdout=PIPE).communicate()
     
     raw_devices = findall(r"(\*?) index: (\d+)", str(raw))
-    names = findall(r"alsa.card_name = \"(\S.+)\"", str(raw))
+    names = findall(r"device.description = \"(\S.+)\"", str(raw))
+    
+#    print names
+#    
+#    for name in names:
+#        name = name.decode('iso8859-1')
+#        name = name.encode("ascii","ignore")
+#    
+#    print names
     
     devices = [tup[1] for tup in raw_devices]
     default = [x[1] for x in raw_devices if x[0] is '*'][0]
