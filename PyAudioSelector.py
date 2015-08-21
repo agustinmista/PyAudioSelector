@@ -17,24 +17,28 @@ class AudioSelector:
     
     def __init__(self, parser):
         
+        # Parse the config file
         self.parser = parser
         self.parse_config()
         
-        self.ind = AppIndicator.Indicator.new(
-            "PyAudioSelector",                      # Identifier
-            self.indicator_icon,                    # Icon
-            AppIndicator.IndicatorCategory.OTHER    # Category
-        )
-
+        # Create the indicator
+        self.ind = AppIndicator.Indicator.new("PyAudioSelector",
+                        self.indicator_icon,AppIndicator.IndicatorCategory.OTHER)
         self.ind.set_status(AppIndicator.IndicatorStatus.ACTIVE)
         
-        self.get_audio_status()
+        # Get PulseAudio status
+        self.default_device, self.avaiable_devices, self.inputs = self.get_audio_status()
+        
+        # Create the menu accordingly, and check periodically for changes
         self.create_menu()
+        GLib.timeout_add_seconds(self.refresh_interval, self.handler_check_refresh)
         
         
     def get_audio_status(self):
-        self.default_device, self.avaiable_devices = getPulseAudioDevices()
-        self.inputs = getPulseAudioInputs()
+        default_device, avaiable_devices = getPulseAudioDevices()
+        inputs = getPulseAudioInputs()
+        return (default_device, avaiable_devices, inputs)
+        
         
         
     def parse_config(self):
@@ -148,9 +152,6 @@ class AudioSelector:
         self.menu.show()
         self.ind.set_menu(self.menu)
         
-        # Refresh periodically to catch new inputs/devices
-        GLib.timeout_add_seconds(self.refresh_interval, self.handler_refresh_menu)
-        
         
     def handler_switch_in(self, in_id, dev_id):
         # Move sink input to the selected device
@@ -174,17 +175,37 @@ class AudioSelector:
         
         self.handler_refresh_menu()
         
+        
     def handler_refresh_menu(self):
-        self.get_audio_status()
+        self.default_device, self.avaiable_devices, self.inputs = self.get_audio_status()
         self.menu.destroy()
         self.create_menu()
+
+        
+    def handler_check_refresh(self):
+        # Get current status
+        tmp_dd, tmp_ad, tmp_i = self.get_audio_status()
+        
+        # If something changed, refresh the menu
+        if(tmp_dd != self.default_device or 
+           tmp_ad != self.avaiable_devices or 
+           tmp_i  != self.inputs):
+            self.default_device, self.avaiable_devices, self.inputs = tmp_dd, tmp_ad, tmp_i
+            self.menu.destroy()
+            self.create_menu()
+        
+        # Finally, reset the timer
+        GLib.timeout_add_seconds(self.refresh_interval, self.handler_check_refresh)
+        
         
     def handler_open_settings(self):
          Popen(self.settings_command, shell=True, stdout=PIPE).communicate()
 
+            
     def handler_menu_exit(self):
         Gtk.main_quit()
 		
+        
     def main(self):
         Gtk.main()
 
