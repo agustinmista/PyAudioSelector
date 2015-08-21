@@ -34,11 +34,14 @@ class AudioSelector:
         self.default_device, self.avaiable_devices = getPulseAudioDevices()
         self.inputs = getPulseAudioInputs()
         
+        
     def parse_config(self):
         self.refresh_interval  = int(parser.get('constants', 'refresh_interval'))
         self.connected_icon    = parser.get('constants', 'connected_icon')
         self.disconnected_icon = parser.get('constants', 'disconnected_icon')
         self.indicator_icon    = parser.get('constants', 'indicator_icon')
+        self.settings_command  = parser.get('constants', 'sound-settings-command')
+    
     
     def create_menu(self):
         self.menu = Gtk.Menu()
@@ -75,7 +78,7 @@ class AudioSelector:
         # Add a menu entry for each audio device
         for dev_id, dev_name in self.avaiable_devices:
             item = Gtk.ImageMenuItem.new_from_stock(self.disconnected_icon, None)
-            item.set_label(dev_name+' '+dev_id)
+            item.set_label(dev_name)
             item.connect("activate", lambda w, did: self.handler_switch_all(did), dev_id)
             item.show()
             self.menu.append(item)
@@ -98,6 +101,12 @@ class AudioSelector:
         item.show()
         self.menu.append(item)
 
+        # Open the sound settings
+        item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_PREFERENCES, None)
+        item.connect("activate", lambda w: self.handler_open_settings())
+        item.show()
+        self.menu.append(item)        
+        
         # Refresh the menu
         item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_REFRESH, None)
         item.connect("activate", lambda w: self.handler_refresh_menu())
@@ -117,16 +126,11 @@ class AudioSelector:
         # Refresh periodically to catch new inputs/devices
         GLib.timeout_add_seconds(self.refresh_interval, self.handler_refresh_menu)
         
-    def handler_refresh_menu(self):
-        self.get_audio_status()
-        self.menu.destroy()
-        self.create_menu()
-        
         
     def handler_switch_in(self, in_id, dev_id):
         # Move sink input to the selected device
         cmd = 'pactl move-sink-input ' + in_id + ' ' + dev_id
-        print 'Exec: ' + cmd
+        print 'PulseAudio: : ' + cmd
         Popen(cmd, shell=True, stdout=PIPE).communicate()
         self.handler_refresh_menu()
 
@@ -135,15 +139,24 @@ class AudioSelector:
         # Move sink inputs to the selected device
         for input_id,_,_,_ in getPulseAudioInputs():
             cmd = 'pactl move-sink-input ' + input_id + ' ' + dev_id
-            print 'Exec: ' + cmd
+            print 'PulseAudio: : ' + cmd
             Popen(cmd, shell=True, stdout=PIPE).communicate()
         
         # Set selected device as default
         cmd = 'pacmd set-default-sink ' + dev_id
-        print 'Exec: ' + cmd
+        print 'PulseAudio: : ' + cmd
         Popen(cmd, shell=True, stdout=PIPE).communicate()
         
         self.handler_refresh_menu()
+        
+        
+    def handler_refresh_menu(self):
+        self.get_audio_status()
+        self.menu.destroy()
+        self.create_menu()
+        
+    def handler_open_settings(self):
+         Popen(self.settings_command, shell=True, stdout=PIPE).communicate()
 
     def handler_menu_exit(self):
         Gtk.main_quit()
