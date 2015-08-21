@@ -49,34 +49,57 @@ class AudioSelector:
     def create_menu(self):
         self.menu = Gtk.Menu()
         
-        # Add a menu entry for each audio input
-        for in_id, in_name, in_icon, in_sink in self.inputs:
-            item = Gtk.ImageMenuItem.new_from_stock(in_icon, None)
-            item.set_label(in_name.title())
+        # Create the applications section (if any)
+        if self.inputs:
             
-            # Add a submenu to select audio device
-            submenu = Gtk.Menu()
-            item.set_submenu(submenu)
-            
-            for dev_id, dev_name in self.avaiable_devices:
-                sub_item = Gtk.ImageMenuItem.new_from_stock(self.disconnected_icon, None)
-                sub_item.set_label(dev_name)
-                sub_item.connect("activate", lambda w, iid, did: self.handler_switch_in(iid, did), in_id, dev_id)
-                sub_item.show()
-                submenu.append(sub_item)
-                
-                # Disable current device
-                if dev_id == in_sink:
-                    sub_item.set_sensitive(False)
-                    sub_item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
-            
+            # Applications label
+            item = Gtk.MenuItem("Aplicaciones")
+            item.set_sensitive(False)
             item.show()
             self.menu.append(item)
         
-        # Separator
-        item = Gtk.SeparatorMenuItem()
-        item.show()
-        self.menu.append(item)
+            # Add a menu entry for each audio input
+            for in_id, in_name, in_icon, in_sink in self.inputs:
+                item = Gtk.ImageMenuItem.new_from_stock(in_icon, None)
+                item.set_label(in_name.title())
+
+                # Add a submenu to select audio device
+                submenu = Gtk.Menu()
+                item.set_submenu(submenu)
+                
+                # Applications label
+                sub_item = Gtk.MenuItem("Reproducir en:")
+                sub_item.set_sensitive(False)
+                sub_item.show()
+                submenu.append(sub_item)
+                
+                for dev_id, dev_name in self.avaiable_devices:
+                    sub_item = Gtk.ImageMenuItem.new_from_stock(self.disconnected_icon, None)
+                    sub_item.set_label(dev_name)
+                    sub_item.connect("activate", lambda w, iid, did: self.handler_switch_in(iid, did), in_id, dev_id)
+                    sub_item.show()
+                    submenu.append(sub_item)
+
+                    # Disable current device
+                    if dev_id == in_sink:
+                        sub_item.set_sensitive(False)
+                        sub_item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
+
+                item.show()
+                self.menu.append(item)
+
+            # Separator
+            item = Gtk.SeparatorMenuItem()
+            item.show()
+            self.menu.append(item)
+        
+        
+        # Devices label
+        if self.avaiable_devices:
+            item = Gtk.MenuItem("Dispositivos")
+            item.set_sensitive(False)
+            item.show()
+            self.menu.append(item)
         
         # Add a menu entry for each audio device
         for dev_id, dev_name in self.avaiable_devices:
@@ -91,7 +114,7 @@ class AudioSelector:
                 item.set_sensitive(False)
                 item.set_image(Gtk.Image.new_from_stock(self.connected_icon, Gtk.IconSize.MENU))
             
-            # Enclose default device between delimeters and set the connected icon
+            # Enclose default device between delimeters
             if dev_id == self.default_device:
                 item.set_label(dev_name+' (*)')
                 # If no sound inputs, set the connected icon to the default device
