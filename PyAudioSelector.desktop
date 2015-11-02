@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Exec=/usr/local/bin/PyAudioSelector
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[es_AR]=PyAudioSelector
+Name=PyAudioIndicator
+Comment=Applet indicator for switch between audio sinks and devices
