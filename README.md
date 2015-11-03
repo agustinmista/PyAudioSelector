@@ -39,4 +39,5 @@ gsettings set org.gnome.desktop.interface menus-have-icons true
 * Create an Ubuntu PPA
 * Add a section for input devices
 * Unninstaller script
+* Custom icons
 * A fancier Readme ;-)
