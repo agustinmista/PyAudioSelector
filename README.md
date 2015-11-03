@@ -13,13 +13,13 @@ git clone https://github.com/agustinmista/PyAudioSelector.git
 cd PyAudioSelector
 sudo sh install.sh
 ```
+It will automatically add the indicator to the autostart folder, so you don't have to start it mannualy every time.
+
 If you don't see any icons on the menus, next command should do the trick:
 
 ```bash
 gsettings set org.gnome.desktop.interface menus-have-icons true
 ```
-
-It will automatically add the indicator to the autostart folder, so you don't have to start it mannualy every time
 
 ## ToDo
 * Create an Ubuntu PPA
