@@ -15,6 +15,7 @@ sudo sh install.sh
 ```
 It will automatically add the indicator to the autostart folder, so you don't have to start it mannualy every time.
 
+### Menu icons
 If you don't see any icons on the menus, next command should do the trick:
 
 ```bash
