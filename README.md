@@ -16,7 +16,7 @@ sudo sh install.sh
 It will automatically add the indicator to the autostart folder, so you don't have to start it mannualy every time.
 
 ### Config file
-Threre are some basic parameters such as refresh interval or some icons you could change, by editing the config.ini file, located at /usr/share/PyAudioSelector/ after the installation
+Threre are some basic parameters such as refresh interval or some icons you can change by editing the config.ini file, located at /usr/share/PyAudioSelector/ after the installation
 
 ```
 [constants]
