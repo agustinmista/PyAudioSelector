@@ -9,6 +9,7 @@ cp PyAudioSelector.py /usr/local/bin/PyAudioSelector
 cp config.ini /usr/share/PyAudioSelector
 
 # Copy the autostart entry
+mkdir -p ${USER_HOME}/.config/autostart
 cp PyAudioSelector.desktop ${USER_HOME}/.config/autostart/
 
 echo "Installation completed"
