@@ -24,7 +24,6 @@ class AudioSelector:
     def __init__(self, config):
 
         # Parse the config file
-        self.config = config
         self.retrieve_config()
 
         # Create the indicator
